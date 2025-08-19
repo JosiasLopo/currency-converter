@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# Currency Converter
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Overview
 
-## Get started
+This is a mobile currency converter application built with React Native and Expo. It allows users to convert between EUR and BRL (Euro and Brazilian Real) currencies, view historical exchange rates, and use a built-in calculator for quick conversions.
 
-1. Install dependencies
+## Features
 
+*   **Real-time Exchange Rates:** Fetches the latest EUR to BRL exchange rate from an API.
+*   **Historical Data:** Displays a chart of historical exchange rates.
+*   **Currency Conversion:** Converts amounts between EUR and BRL.
+*   **Calculator:** Includes a calculator for easy calculations.
+*   **Refreshing:** Allows users to refresh the exchange rate and historical data.
+*   **Clean UI:** Provides a user-friendly and intuitive interface.
+
+## Technologies Used
+
+*   React Native
+*   Expo
+*   react-native-vector-icons
+*   react-native-linear-gradient
+*   react-native-safe-area-context
+*   expo-router
+
+## Installation
+
+1.  Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+
+2.  Navigate to the project directory:
+   ```bash
+   cd currency-converter
+   ```
+
+3.  Install the dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
+## Usage
 
+1.  Start the Expo development server:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+2.  Scan the QR code with the Expo Go app (available on Android and iOS).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+currency-converter/
+├── App.js                # Main application entry point
+├── app/
+│   └── (tabs)/           # Expo Router tab layout
+│       ├── _layout.tsx    # Tab layout configuration
+│       └── index.tsx     # Home screen
+├── src/
+│   ├── components/       # Reusable components
+│   │   ├── Calculator.js # Calculator component
+│   │   ├── CurrencyCard.js # Currency card component
+│   │   ├── ExchangeChart.js # Exchange rate chart component
+│   │   └── ...
+│   ├── screens/          # Application screens
+│   │   ├── HomeScreen.js   # Main home screen
+│   │   └── ...
+│   ├── services/         # API services
+│   │   └── api.js        # API calls
+│   └── utils/            # Utility functions
+│       └── colors.js     # Color definitions
+├── assets/               # Application assets
+├── metro.config.js       # Metro bundler configuration
+└── ...
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Contributing
 
-## Learn more
+Feel free to contribute to the project by submitting pull requests, reporting issues, or suggesting new features.
 
-To learn more about developing your project with Expo, look at the following resources:
+## License
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+[MIT](LICENSE)
