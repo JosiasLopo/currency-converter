@@ -15,6 +15,7 @@ export default function Calculator({ exchangeRate }) {
   const [eurValue, setEurValue] = useState('');
   const [brlValue, setBrlValue] = useState('');
   const [lastEdited, setLastEdited] = useState('eur');
+  const [isEurFirst, setIsEurFirst] = useState(true);
 
   const handleEurChange = (value) => {
     setEurValue(value);
@@ -51,6 +52,12 @@ export default function Calculator({ exchangeRate }) {
     setEurValue(brlValue);
     setBrlValue(temp);
     setLastEdited(lastEdited === 'eur' ? 'brl' : 'eur');
+    setIsEurFirst(!isEurFirst);
+    if (isEurFirst) {
+      handleBrlChange(temp);
+    } else {
+      handleEurChange(temp);
+    }
   };
 
   const clearValues = () => {
@@ -64,41 +71,77 @@ export default function Calculator({ exchangeRate }) {
       style={styles.container}
     >
       <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
-          <View style={styles.currencyLabel}>
-            <Text style={styles.currencySymbol}>€</Text>
-            <Text style={styles.currencyCode}>EUR</Text>
+        {isEurFirst ? (
+          <View style={styles.inputWrapper}>
+            <View style={styles.currencyLabel}>
+              <Text style={styles.currencySymbol}>€</Text>
+              <Text style={styles.currencyCode}>EUR</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={eurValue}
+              onChangeText={handleEurChange}
+              placeholder="0,00"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              returnKeyType="done"
+            />
           </View>
-          <TextInput
-            style={styles.input}
-            value={eurValue}
-            onChangeText={handleEurChange}
-            placeholder="0,00"
-            placeholderTextColor={colors.textSecondary}
-            keyboardType="numeric"
-            returnKeyType="done"
-          />
-        </View>
+        ) : (
+          <View style={styles.inputWrapper}>
+            <View style={styles.currencyLabel}>
+              <Text style={styles.currencySymbol}>R$</Text>
+              <Text style={styles.currencyCode}>BRL</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={brlValue}
+              onChangeText={handleBrlChange}
+              placeholder="0,00"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              returnKeyType="done"
+            />
+          </View>
+        )}
 
         <TouchableOpacity style={styles.swapButton} onPress={swapValues}>
           <Icon name="repeat" size={24} color={colors.primary} />
         </TouchableOpacity>
 
-        <View style={styles.inputWrapper}>
-          <View style={styles.currencyLabel}>
-            <Text style={styles.currencySymbol}>R$</Text>
-            <Text style={styles.currencyCode}>BRL</Text>
+        {!isEurFirst ? (
+          <View style={styles.inputWrapper}>
+            <View style={styles.currencyLabel}>
+              <Text style={styles.currencySymbol}>€</Text>
+              <Text style={styles.currencyCode}>EUR</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={eurValue}
+              onChangeText={handleEurChange}
+              placeholder="0,00"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              returnKeyType="done"
+            />
           </View>
-          <TextInput
-            style={styles.input}
-            value={brlValue}
-            onChangeText={handleBrlChange}
-            placeholder="0,00"
-            placeholderTextColor={colors.textSecondary}
-            keyboardType="numeric"
-            returnKeyType="done"
-          />
-        </View>
+        ) : (
+          <View style={styles.inputWrapper}>
+            <View style={styles.currencyLabel}>
+              <Text style={styles.currencySymbol}>R$</Text>
+              <Text style={styles.currencyCode}>BRL</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={brlValue}
+              onChangeText={handleBrlChange}
+              placeholder="0,00"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              returnKeyType="done"
+            />
+          </View>
+        )}
       </View>
 
       <TouchableOpacity style={styles.clearButton} onPress={clearValues}>
