@@ -156,7 +156,13 @@ export default function Calculator({ exchangeRate }) {
             <TouchableOpacity
               key={amount}
               style={styles.quickAmount}
-              onPress={() => handleEurChange(amount)}
+              onPress={() => {
+                if (isEurFirst) {
+                  handleEurChange(amount);
+                } else {
+                  handleBrlChange(amount);
+                }
+              }}
             >
               <Text style={styles.quickAmountText}>€{amount}</Text>
             </TouchableOpacity>
