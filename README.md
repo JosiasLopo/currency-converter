@@ -4,6 +4,8 @@
 
 This is a mobile currency converter application built with React Native and Expo. It allows users to convert between EUR and BRL (Euro and Brazilian Real) currencies, view historical exchange rates, and use a built-in calculator for quick conversions.
 
+Try it out: https://josiasconverter.vercel.app/
+
 ## Features
 
 *   **Real-time Exchange Rates:** Fetches the latest EUR to BRL exchange rate from an API.
