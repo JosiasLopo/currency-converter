@@ -1,27 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/Feather';
-import CurrencyCard from '../components/CurrencyCard';
-import ExchangeChart from '../components/ExchangeChart';
-import Calculator from '../components/Calculator';
+import { useRouter } from 'expo-router';
+
 import { colors } from '../utils/colors';
 import { getExchangeRate, getHistoricalRates } from '../services/api';
-import RateDetails from '../components/RateDetails';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   const [exchangeRate, setExchangeRate] = useState(0);
   const [historicalData, setHistoricalData] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
   const fetchData = async () => {
@@ -38,93 +34,57 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchData();
-    setRefreshing(false);
+  const isUp = useMemo(() => {
+    if (!historicalData || historicalData.length < 2) return true;
+    const last = historicalData[historicalData.length - 1]?.rate ?? 0;
+    const prev = historicalData[historicalData.length - 2]?.rate ?? 0;
+    return last >= prev;
+  }, [historicalData]);
+
+  const formatTimestamp = (date) => {
+    try {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      return `${y}-${m}-${d} ${hh}:${mm}`;
+    } catch (e) {
+      return '';
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={[colors.background, '#0f0f0f']}
+        colors={['#dddddd', '#000000']}
+        locations={[0.4, 0.8]}
         style={styles.gradient}
       >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={colors.primary}
-            />
-          }
-        >
-          <View style={styles.header}>
-            <Text style={styles.title}>Currency Converter</Text>
-            <Text style={styles.subtitle}>EUR → BRL</Text>
-          </View>
+        <View style={styles.centerContent}>
+          <Text style={styles.pairLabel}>EUR/BRL</Text>
 
-          <View style={styles.rateContainer}>
-            <Text style={styles.currentRate}>
-              1 EUR = {exchangeRate.toFixed(4)} BRL
-            </Text>
-            <Text style={styles.lastUpdate}>
-              Atualizado: {lastUpdate.toLocaleTimeString('pt-BR')}
-            </Text>
-          </View>
+          <Text style={styles.bigNumber}>{exchangeRate.toFixed(2)}</Text>
 
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'overview' && styles.activeTab]}
-              onPress={() => setActiveTab('overview')}
-            >
-              <Icon name="trending-up" size={20} color={colors.text} />
-              <Text style={styles.tabText}>Visão Geral</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'calculator' && styles.activeTab]}
-              onPress={() => setActiveTab('calculator')}
-            >
-              <Icon name="trello" size={20} color={colors.text} />
-              <Text style={styles.tabText}>Calculadora</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.timestamp}>{formatTimestamp(lastUpdate)}</Text>
 
-          {activeTab === 'overview' ? (
-            <>
-              <CurrencyCard
-                fromCurrency="EUR"
-                toCurrency="BRL"
-                rate={exchangeRate}
-                trend={historicalData}
-              />
-              
-              <ExchangeChart data={historicalData} />
-              <RateDetails baseRate={exchangeRate} />
-              
-              <View style={styles.infoCards}>
-                <View style={styles.infoCard}>
-                  <Icon name="trending-up" size={24} color={colors.success} />
-                  <Text style={styles.infoTitle}>Alta do dia</Text>
-                  <Text style={styles.infoValue}>
-                    R$ {(Math.max(...historicalData.map(d => d.rate)) || exchangeRate).toFixed(4)}
-                  </Text>
-                </View>
-                
-                <View style={styles.infoCard}>
-                  <Icon name="trending-down" size={24} color={colors.danger} />
-                  <Text style={styles.infoTitle}>Baixa do dia</Text>
-                  <Text style={styles.infoValue}>
-                    R$ {(Math.min(...historicalData.map(d => d.rate)) || exchangeRate).toFixed(4)}
-                  </Text>
-                </View>
-              </View>
-            </>
-          ) : (
-            <Calculator exchangeRate={exchangeRate} />
-          )}
-        </ScrollView>
+          <Icon
+            name={isUp ? 'arrow-up-right' : 'arrow-down-right'}
+            size={64}
+            color={colors.card}
+            style={styles.trendIcon}
+          />
+        </View>
+
+        {/* Calculator no canto inferior esquerdo */}
+        <TouchableOpacity onPress={() => router.push('/calculator')} style={[styles.cornerButton, styles.leftBottom]}>
+          <Icon name="trello" size={28} color={colors.text} />
+        </TouchableOpacity>
+
+        {/* Mais info (antigo settings) no canto inferior direito */}
+        <TouchableOpacity onPress={() => router.push('/settings')} style={[styles.cornerButton, styles.rightBottom]}>
+          <Icon name="info" size={28} color={colors.text} />
+        </TouchableOpacity>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -133,93 +93,50 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   gradient: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: colors.textSecondary,
-  },
-  rateContainer: {
-    backgroundColor: colors.card,
-    marginHorizontal: 20,
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  currentRate: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  lastUpdate: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  tab: {
+  centerContent: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginHorizontal: 5,
+    paddingHorizontal: 24,
   },
-  activeTab: {
-    backgroundColor: colors.primary,
-  },
-  tabText: {
-    color: colors.text,
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  infoCards: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 30,
-  },
-  infoCard: {
-    flex: 1,
-    backgroundColor: colors.card,
-    padding: 20,
-    borderRadius: 16,
-    marginHorizontal: 5,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  infoTitle: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  infoValue: {
-    color: colors.text,
+  pairLabel: {
     fontSize: 18,
-    fontWeight: 'bold',
+    color: colors.card,
+    opacity: 0.9,
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  bigNumber: {
+    fontSize: 96,
+    color: colors.card,
+    fontWeight: '700',
+    lineHeight: 108,
+  },
+  timestamp: {
+    fontSize: 16,
+    color: colors.card,
+    opacity: 0.85,
+    marginTop: 8,
+  },
+  trendIcon: {
+    marginTop: 24,
+    opacity: 0.9,
+  },
+  cornerButton: {
+    position: 'absolute',
+    backgroundColor: 'transparent',
+    padding: 16,
+  },
+  leftBottom: {
+    left: 8,
+    bottom: 8,
+  },
+  rightBottom: {
+    right: 8,
+    bottom: 8,
   },
 });
